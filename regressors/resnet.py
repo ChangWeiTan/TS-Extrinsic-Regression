@@ -1,9 +1,8 @@
-import os
 import time
-# import tensorflow as tf
 
 import keras
 import numpy as np
+
 from utils.tools import save_logs_for_regression_deep_learning, calculate_regression_metrics, save_test_duration, \
     save_train_duration
 

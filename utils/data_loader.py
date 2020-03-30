@@ -1,6 +1,3 @@
-# Author:           Chang Wei Tan
-# Last modified:    7/02/2020
-
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
