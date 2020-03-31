@@ -32,11 +32,22 @@ def create_regressor(regressor_name, input_shape, output_directory, verbose=1):
     if regressor_name == "xgboost":
         from regressors.xgboost import XGBoostRegressor
         return XGBoostRegressor(output_directory)
+    if regressor_name == "svr":
+        from regressors.svr import SVRRegressor
+        return SVRRegressor(output_directory)
+    if "classic" in regressor_name:
+        from regressors.classic_knn import ClassicKNNRegressor
+        kwargs = {"algorithm": "auto",
+                  "n_neighbors": num_neighbours,
+                  "n_jobs": -1,
+                  "metric": "euclidean"}
+        return ClassicKNNRegressor(output_directory, kwargs=kwargs)
 
 
 username = getpass.getuser()
 print('Username: {}'.format(username))
-regressor_name = "random_forest"  # resnet, fcn, xgboost, random_forest
+regressor_name = "classic_nn"  # resnet, fcn, xgboost, random_forest
+num_neighbours = 5
 
 problems = ["PPGDalia", "EthanolConcentration", "AcetoneConcentration", "BenzeneConcentration",
             "NewsHeadlineSentiment", "NewsTitleSentiment",
@@ -67,6 +78,8 @@ verbose = True
 
 itr = "iter_0"
 output_directory = "demo_output/"
+if regressor_name == "classic_nn":
+    regressor_name = regressor_name.replace("_nn", "_{}nn".format(num_neighbours))
 output_directory = output_directory + regressor_name + '/' + problem + '/' + itr + '/'
 create_directory(output_directory)
 
@@ -76,6 +89,4 @@ y_pred, test_duration = model.predict(X_test)
 df_metrics = calculate_regression_metrics(y_test, y_pred, test_duration)
 df_metrics.to_csv(output_directory + 'df_metrics.csv', index=False)
 
-print("[Experiments]", y_pred)
-print("[Experiments]", y_test)
 print("[Experiments]", df_metrics)

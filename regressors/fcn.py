@@ -10,13 +10,13 @@ class FCNRegressor:
     def __init__(self, output_directory, input_shape, verbose=False, build=True, batch_size=16, nb_epochs=2000):
         self.name = "FCN"
         self.output_directory = output_directory
+        self.verbose = verbose
         if build == True:
             self.batch_size = batch_size
             self.epochs = nb_epochs
             self.params = {"batch_size": batch_size, "nb_epochs": nb_epochs}
-            self.verbose = verbose
             self.model = self.build_model(input_shape)
-            if (verbose == True):
+            if (self.verbose == True):
                 self.model.summary()
             self.model.save_weights(self.output_directory + 'model_init.hdf5')
         else:
@@ -73,7 +73,7 @@ class FCNRegressor:
             print("[{}] Fitting the regressor with data of {}".format(self.name, x_train.shape))
 
         batch_size = 16
-        nb_epochs = 100
+        nb_epochs = 2000
 
         mini_batch_size = int(min(x_train.shape[0] / 10, batch_size))
 

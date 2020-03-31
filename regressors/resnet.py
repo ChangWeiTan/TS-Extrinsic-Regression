@@ -11,14 +11,14 @@ class ResNetRegressor:
     def __init__(self, output_directory, input_shape, verbose=False, build=True, batch_size=64, nb_epochs=1500):
         self.name = "ResNet"
         self.output_directory = output_directory
+        self.verbose = verbose
         if build == True:
             self.batch_size = batch_size
             self.epochs = nb_epochs
             self.params = {"batch_size": batch_size, "nb_epochs": nb_epochs}
             self.model = self.build_model(input_shape)
-            if (verbose == True):
+            if (self.verbose == True):
                 self.model.summary()
-            self.verbose = verbose
             self.model.save_weights(self.output_directory + 'model_init.hdf5')
         else:
             self.model = None
@@ -125,7 +125,7 @@ class ResNetRegressor:
         # x_val and y_val are only used to monitor the test loss and NOT for training
 
         batch_size = 64
-        nb_epochs = 100
+        nb_epochs = 1500
 
         mini_batch_size = int(min(x_train.shape[0] / 10, batch_size))
 

@@ -23,16 +23,20 @@ def create_directory(directory_path):
 
 
 def process_data(regressor_name, X):
-    if (regressor_name == "random_forest") or (regressor_name == "xgboost"):
+    if (regressor_name == "random_forest") or (regressor_name == "xgboost") or (regressor_name == "svr") or ("classic" in regressor_name):
         tmp = []
         for i in tqdm(range(len(X))):
             # 1. flatten
-            tmp2 = list(X.iloc[i, 0].reset_index(drop=True))
-            for j in range(1, len(X.columns)):
-                tmp2 = tmp2 + list(X.iloc[i, j])
-            tmp2 = pd.DataFrame(tmp2).transpose()
             # 2. fill missing values
-            tmp2.interpolate(method='linear', inplace=True, axis=1, limit_direction='both')
+            x = X.iloc[i, 0].reset_index(drop=True)
+            x.interpolate(method='linear', inplace=True, limit_direction='both')
+            tmp2 = list(x)
+            for j in range(1, len(X.columns)):
+                x = X.iloc[i, j].reset_index(drop=True)
+                x.interpolate(method='linear', inplace=True, limit_direction='both')
+                tmp2 = tmp2 + list(x)
+            tmp2 = pd.DataFrame(tmp2).transpose()
+
             tmp.append(tmp2)
         X = pd.concat(tmp).reset_index(drop=True)
     else:
@@ -94,6 +98,7 @@ def save_train_duration(file_name, test_duration):
                        columns=['train_duration'])
     res['train_duration'] = test_duration
     res.to_csv(file_name, index=False)
+
 
 def save_test_duration(file_name, test_duration):
     res = pd.DataFrame(data=np.zeros((1, 1), dtype=np.float), index=[0],
