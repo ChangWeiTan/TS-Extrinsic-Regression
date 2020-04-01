@@ -1,6 +1,6 @@
-import keras
-import numpy as np
 import time
+
+import keras
 
 from utils.tools import save_logs_for_regression_deep_learning, calculate_regression_metrics, save_train_duration, \
     save_test_duration
@@ -8,7 +8,7 @@ from utils.tools import save_logs_for_regression_deep_learning, calculate_regres
 
 class InceptionTimeRegressor:
     def __init__(self, output_directory, input_shape, verbose=True, build=True, batch_size=64,
-                 nb_filters=32, use_residual=True, use_bottleneck=True, depth=6, kernel_size=41, nb_epochs=100):
+                 nb_filters=32, use_residual=True, use_bottleneck=True, depth=6, kernel_size=41, nb_epochs=1500):
         self.name = "InceptionTime"
         self.output_directory = output_directory
 
@@ -129,10 +129,10 @@ class InceptionTimeRegressor:
         start_time = time.time()
         hist = self.model.fit(x_train, y_train, batch_size=mini_batch_size, epochs=self.nb_epochs,
                               verbose=self.verbose, validation_data=(x_val, y_val), callbacks=self.callbacks)
-        y_pred, _ = self.predict(x_train)
-        df_metrics = calculate_regression_metrics(y_train, y_pred)
 
         self.train_duration = time.time() - start_time
+        y_pred, _ = self.predict(x_train)
+        df_metrics = calculate_regression_metrics(y_train, y_pred)
         df_metrics["duration"] = self.train_duration
         save_train_duration(self.output_directory + 'train_duration.csv', self.train_duration)
         self.train_metrics = df_metrics
@@ -141,27 +141,13 @@ class InceptionTimeRegressor:
 
         save_logs_for_regression_deep_learning(self.output_directory, hist)
 
-        y_pred, _ = self.predict(x_val)
-
-        # save predictions
-        np.save(self.output_directory + 'y_pred.npy', y_pred)
-
-        # convert the predicted from binary to integer
-        # y_pred = np.argmax(y_pred, axis=1)
-
-        # df_metrics = save_logs(self.output_directory, hist, y_pred, y_true, duration,
-        #                        plot_test_acc=plot_test_acc)
-
-        df_metrics = save_logs_for_regression_deep_learning(self.output_directory, hist)
-
         keras.backend.clear_session()
 
         if self.verbose > 0:
             print("[{}] Fitting completed, took {}s".format(self.name, self.train_duration))
-            print("[{}] Fitting completed, best RMSE={}, MAE={}".format(self.name,
-                                                                        df_metrics["rmse"][0],
-                                                                        df_metrics["mae"][0]))
-
+            print("[{}] Fitting completed, RMSE={}, MAE={}".format(self.name,
+                                                                   df_metrics["rmse"][0],
+                                                                   df_metrics["mae"][0]))
 
         return df_metrics
 

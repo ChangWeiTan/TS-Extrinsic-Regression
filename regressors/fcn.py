@@ -82,10 +82,10 @@ class FCNRegressor:
         hist = self.model.fit(x_train, y_train, batch_size=mini_batch_size, epochs=nb_epochs,
                               verbose=self.verbose, validation_data=(x_val, y_val), callbacks=self.callbacks)
 
+        self.train_duration = time.time() - start_time
+
         y_pred, _ = self.predict(x_train)
         df_metrics = calculate_regression_metrics(y_train, y_pred)
-
-        self.train_duration = time.time() - start_time
         df_metrics["duration"] = self.train_duration
         save_train_duration(self.output_directory + 'train_duration.csv', self.train_duration)
         self.train_metrics = df_metrics
@@ -94,20 +94,13 @@ class FCNRegressor:
 
         save_logs_for_regression_deep_learning(self.output_directory, hist)
 
-        y_pred, test_duration = self.predict(x_val)
-
-        # save predictions
-        np.save(self.output_directory + 'y_pred.npy', y_pred)
-
-        df_metrics = save_logs_for_regression_deep_learning(self.output_directory, hist)
-
         keras.backend.clear_session()
 
         if self.verbose > 0:
             print("[{}] Fitting completed, took {}s".format(self.name, self.train_duration))
-            print("[{}] Fitting completed, best RMSE={}, MAE={}".format(self.name,
-                                                                        df_metrics["rmse"][0],
-                                                                        df_metrics["mae"][0]))
+            print("[{}] Fitting completed, RMSE={}, MAE={}".format(self.name,
+                                                                   df_metrics["rmse"][0],
+                                                                   df_metrics["mae"][0]))
 
         return df_metrics
 

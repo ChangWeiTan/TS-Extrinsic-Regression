@@ -107,14 +107,6 @@ def save_test_duration(file_name, test_duration):
     res.to_csv(file_name, index=False)
 
 
-def save_logs_for_regression(output_directory, y_pred, y_true, duration, y_true_val=None,
-                             y_pred_val=None):
-    df_metrics = calculate_regression_metrics(y_true, y_pred, duration, y_true_val, y_pred_val)
-    df_metrics.to_csv(output_directory + 'df_metrics.csv', index=False)
-
-    return df_metrics
-
-
 def save_logs_for_regression_deep_learning(output_directory, hist, lr=True):
     hist_df = pd.DataFrame(hist.history)
     hist_df.to_csv(output_directory + 'history.csv', index=False)

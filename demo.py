@@ -49,7 +49,7 @@ def create_regressor(regressor_name, input_shape, output_directory, verbose=1):
 
 username = getpass.getuser()
 print('Username: {}'.format(username))
-regressor_name = "inception"  # resnet, fcn, xgboost, random_forest
+regressor_name = "resnet"  # resnet, fcn, xgboost, random_forest
 num_neighbours = 5
 
 problems = ["PPGDalia", "EthanolConcentration", "AcetoneConcentration", "BenzeneConcentration",
