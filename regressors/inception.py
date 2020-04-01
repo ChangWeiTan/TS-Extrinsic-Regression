@@ -7,8 +7,8 @@ from utils.tools import save_logs_for_regression_deep_learning, calculate_regres
 
 
 class InceptionTimeRegressor:
-    def __init__(self, output_directory, input_shape, nb_classes, verbose=False, build=True, batch_size=64,
-                 nb_filters=32, use_residual=True, use_bottleneck=True, depth=6, kernel_size=41, nb_epochs=1500):
+    def __init__(self, output_directory, input_shape, verbose=True, build=True, batch_size=64,
+                 nb_filters=32, use_residual=True, use_bottleneck=True, depth=6, kernel_size=41, nb_epochs=100):
         self.name = "InceptionTime"
         self.output_directory = output_directory
 
@@ -24,7 +24,7 @@ class InceptionTimeRegressor:
 
         self.verbose = verbose
         if build == True:
-            self.model = self.build_model(input_shape, nb_classes)
+            self.model = self.build_model(input_shape)
             if (verbose == True):
                 self.model.summary()
 
@@ -74,7 +74,7 @@ class InceptionTimeRegressor:
         x = keras.layers.Activation('relu')(x)
         return x
 
-    def build_model(self, input_shape, nb_classes):
+    def build_model(self, input_shape):
         if self.verbose > 0:
             print("[{}] Building the model with input shape of {}".format(self.name, input_shape))
 
@@ -152,7 +152,7 @@ class InceptionTimeRegressor:
         # df_metrics = save_logs(self.output_directory, hist, y_pred, y_true, duration,
         #                        plot_test_acc=plot_test_acc)
 
-        df_metrics = save_logs_for_regression_deep_learning(self.output_directory, hist, y_pred)
+        df_metrics = save_logs_for_regression_deep_learning(self.output_directory, hist)
 
         keras.backend.clear_session()
 

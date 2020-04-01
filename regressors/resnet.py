@@ -151,7 +151,7 @@ class ResNetRegressor:
         # save predictions
         np.save(self.output_directory + 'y_pred.npy', y_pred)
 
-        df_metrics = save_logs_for_regression_deep_learning(self.output_directory, hist, y_pred)
+        df_metrics = save_logs_for_regression_deep_learning(self.output_directory, hist)
 
         keras.backend.clear_session()
 
