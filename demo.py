@@ -20,6 +20,9 @@ def fit_regressor(output_directory, regressor_name, X_train, y_train, X_test, y_
 
 
 def create_regressor(regressor_name, input_shape, output_directory, verbose=1):
+    if regressor_name == "inception":
+        from regressors.inception import InceptionTimeRegressor
+        return InceptionTimeRegressor(output_directory, input_shape, verbose)
     if regressor_name == "resnet":
         from regressors.resnet import ResNetRegressor
         return ResNetRegressor(output_directory, input_shape, verbose)
@@ -46,7 +49,7 @@ def create_regressor(regressor_name, input_shape, output_directory, verbose=1):
 
 username = getpass.getuser()
 print('Username: {}'.format(username))
-regressor_name = "classic_nn"  # resnet, fcn, xgboost, random_forest
+regressor_name = "inception"  # resnet, fcn, xgboost, random_forest
 num_neighbours = 5
 
 problems = ["PPGDalia", "EthanolConcentration", "AcetoneConcentration", "BenzeneConcentration",
