@@ -42,6 +42,7 @@ def load_from_tsfile_to_dataframe(full_file_path_and_name, return_separate_X_and
     has_target_labels_tag = False
     has_data_tag = False
 
+    previous_timestamp_was_float = None
     previous_timestamp_was_int = None
     previous_timestamp_was_timestamp = None
     num_dimensions = None
@@ -308,24 +309,35 @@ def load_from_tsfile_to_dataframe(full_file_path_and_name, return_separate_X_and
                                             timestamp = int(timestamp)
                                             timestamp_is_int = True
                                             timestamp_is_timestamp = False
-
                                         except ValueError:
                                             timestamp_is_int = False
 
                                         if not timestamp_is_int:
                                             try:
+                                                timestamp = float(timestamp)
+                                                timestamp_is_float = True
+                                                timestamp_is_timestamp = False
+                                            except ValueError:
+                                                timestamp_is_float = False
+
+                                        if not timestamp_is_int and not timestamp_is_float:
+                                            try:
                                                 timestamp = timestamp.strip()
                                                 timestamp_is_timestamp = True
-
                                             except ValueError:
                                                 timestamp_is_timestamp = False
 
                                         # Make sure that the timestamps in the file (not just this dimension or case) are consistent
 
-                                        if not timestamp_is_timestamp and not timestamp_is_int:
+                                        if not timestamp_is_timestamp and not timestamp_is_int and not timestamp_is_float:
                                             raise TsFileParseException(
                                                 "dimension " + str(this_line_num_dimensions + 1) + " on line " + str(
                                                     line_num + 1) + " contains a tuple that has an invalid timestamp '" + timestamp + "'")
+
+                                        if previous_timestamp_was_float is not None and previous_timestamp_was_float and not timestamp_is_float:
+                                            raise TsFileParseException(
+                                                "dimension " + str(this_line_num_dimensions + 1) + " on line " + str(
+                                                    line_num + 1) + " contains tuples where the timestamp format is inconsistent")
 
                                         if previous_timestamp_was_int is not None and previous_timestamp_was_int and not timestamp_is_int:
                                             raise TsFileParseException(
@@ -347,10 +359,17 @@ def load_from_tsfile_to_dataframe(full_file_path_and_name, return_separate_X_and
                                         if previous_timestamp_was_timestamp is None and timestamp_is_timestamp:
                                             previous_timestamp_was_timestamp = True
                                             previous_timestamp_was_int = False
+                                            previous_timestamp_was_float = False
 
                                         if previous_timestamp_was_int is None and timestamp_is_int:
                                             previous_timestamp_was_timestamp = False
                                             previous_timestamp_was_int = True
+                                            previous_timestamp_was_float = False
+
+                                        if previous_timestamp_was_float is None and timestamp_is_float:
+                                            previous_timestamp_was_timestamp = False
+                                            previous_timestamp_was_int = False
+                                            previous_timestamp_was_float = True
 
                                         # See if we should add the data for this dimension
 
