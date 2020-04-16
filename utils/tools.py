@@ -46,8 +46,11 @@ def process_data(regressor_name, X, normalise=None):
             # 2. fill missing values
             x = X.iloc[i, 0].reset_index(drop=True)
             x.interpolate(method='linear', inplace=True, limit_direction='both')
-            if normalise:
-                x = scaler.fit_transform(x.values.reshape(-1, 1))
+            if normalise == "standard":
+                x = StandardScaler().fit_transform(x.values.reshape(-1, 1))
+                x = pd.DataFrame(x)
+            elif normalise == "minmax":
+                x = MinMaxScaler().fit_transform(x.values.reshape(-1, 1))
                 x = pd.DataFrame(x)
             tmp2 = x.values.tolist()
             for j in range(1, len(X.columns)):
@@ -57,7 +60,7 @@ def process_data(regressor_name, X, normalise=None):
                     x = StandardScaler().fit_transform(x.values.reshape(-1, 1))
                     x = pd.DataFrame(x)
                 elif normalise == "minmax":
-                    x = StandardScaler().fit_transform(x.values.reshape(-1, 1))
+                    x = MinMaxScaler().fit_transform(x.values.reshape(-1, 1))
                     x = pd.DataFrame(x)
                 tmp2 = tmp2 + x.values.tolist()
             tmp2 = pd.DataFrame(tmp2).transpose()
@@ -90,7 +93,7 @@ def process_data(regressor_name, X, normalise=None):
                 scaler = StandardScaler().fit(_y)
                 _y = scaler.transform(_y)
             if normalise == "minmax":
-                scaler = StandardScaler().fit(_y)
+                scaler = MinMaxScaler().fit(_y)
                 _y = scaler.transform(_y)
 
             tmp.append(_y)
@@ -152,8 +155,8 @@ def save_logs_for_regression_deep_learning(output_directory, hist, lr=True):
 
     df_best_model['best_model_train_loss'] = row_best_model['loss']
     df_best_model['best_model_val_loss'] = row_best_model['val_loss']
-    df_best_model['best_model_train_acc'] = row_best_model['mean_absolute_error']
-    df_best_model['best_model_val_acc'] = row_best_model['val_mean_absolute_error']
+    df_best_model['best_model_train_mae'] = row_best_model['mae']
+    df_best_model['best_model_val_mae'] = row_best_model['val_mae']
     if lr == True:
         df_best_model['best_model_learning_rate'] = row_best_model['lr']
     df_best_model['best_model_nb_epoch'] = index_best_model

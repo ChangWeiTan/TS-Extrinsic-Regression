@@ -1,7 +1,4 @@
-import getpass
-import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 
 from utils import tools
 from utils.data_loader import load_from_tsfile_to_dataframe
@@ -80,14 +77,15 @@ def create_regressor(regressor_name, input_shape, output_directory, verbose=1):
 machine = "pc"
 regressors = ["resnet", "fcn", "inception", "xgboost", "random_forest", "svr", "ed1nn", "ed5nn"]
 regressor_name = "resnet"
-normalise = "minmax"
+normalise = "none"
 
-problems = ["AcetoneConcentration", "EthanolConcentration", "BenzeneConcentration",
-            "NewsHeadlineSentiment", "NewsTitleSentiment",
-            "IEEEPPG", "PPGDalia",
-            "CoolerCondition", "ValveCondition", "PumpLeakage", "HydraulicAccumulator"]
-# problems = ["EthyleneConcentration2", "MethaneConcentration2", "CarbonMonoxideConcentration2",
-#             "CarbonMonoxideConcentration3", "EthanolConcentration3", "EthyleneConcentration3", "MethaneConcentration3"]
+# problems = ["LFMC", "AcetoneConcentration", "EthanolConcentration", "BenzeneConcentration",
+#             "NewsHeadlineSentiment", "NewsTitleSentiment",
+#             "IEEEPPG", "PPGDalia",
+#             "CoolerCondition", "ValveCondition", "PumpLeakage", "HydraulicAccumulator"]
+problems = ["IEEEPPG", "PPGDalia",
+            "CoolerCondition", "ValveCondition", "PumpLeakage", "HydraulicAccumulator",
+            "NewsHeadlineSentiment", "NewsTitleSentiment"]
 for problem in problems:
     data_folder = tools.get_data_folder(machine) + problem + "/"
     print("[Experiments] Data folder: {}".format(data_folder))
