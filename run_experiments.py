@@ -1,129 +1,83 @@
+import numpy as np
 import pandas as pd
 
-from utils import tools
+from utils.regressor_tools import process_data, fit_regressor, calculate_regression_metrics
+from utils import data_loader
 from utils.data_loader import load_from_tsfile_to_dataframe
-from utils.tools import create_directory, process_data, calculate_regression_metrics
+from utils.tools import create_directory
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 1000)
 
+module = "RegressionExperiment"
+task = "regression"
+iterations = [1]
+problems = ["AustraliaRainfall",
+            "PPGDalia"]
+# problems = regression_datasets
+regressors = ["rocket"]
+norm = "none"
+machine = "linux"
 
-def fit_regressor(output_directory, regressor_name, X_train, y_train, X_test, y_test):
-    input_shape = X_train.shape[1:]
+data_path = data_loader.get_data_path(task=task, machine=machine)
+output_path = data_loader.get_output_path(task=task, machine=machine)
+if __name__ == '__main__':
+    # for each problem
+    for problem in problems:
+        print("#########################################################################")
+        print("[{}] Starting Experiments".format(module))
+        print("#########################################################################")
+        print("[{}] Data path: {}".format(module, data_path))
+        print("[{}] Problem: {}".format(module, problem))
 
-    regressor = create_regressor(regressor_name, input_shape, output_directory)
-    regressor.fit(X_train, y_train, X_test, y_test)
+        # set data folder
+        data_folder = data_path + problem + "/"
+        train_file = data_folder + problem + "_TRAIN.ts"
+        test_file = data_folder + problem + "_TEST.ts"
 
-    return regressor
+        print("[{}] Loading data".format(module))
+        X_train, y_train = load_from_tsfile_to_dataframe(train_file)
+        X_test, y_test = load_from_tsfile_to_dataframe(test_file)
 
+        print("[{}] X_train: {}".format(module, X_train.shape))
+        print("[{}] X_test: {}".format(module, X_test.shape))
 
-def create_regressor(regressor_name, input_shape, output_directory, verbose=1):
-    if regressor_name == "inception":
-        from regressors.inception import InceptionTimeRegressor
-        return InceptionTimeRegressor(output_directory, input_shape, verbose)
-    if regressor_name == "resnet":
-        from regressors.resnet import ResNetRegressor
-        return ResNetRegressor(output_directory, input_shape, verbose)
-    if regressor_name == "fcn":
-        from regressors.fcn import FCNRegressor
-        return FCNRegressor(output_directory, input_shape, verbose)
-    if regressor_name == "random_forest":
-        from regressors.random_forest import RFRegressor
-        kwargs = {"n_estimators": 100,
-                  "n_jobs": -1,
-                  "random_state": 0,
-                  "verbose": 2}
-        return RFRegressor(output_directory, kwargs=kwargs)
-    if regressor_name == "xgboost":
-        from regressors.xgboost import XGBoostRegressor
-        kwargs = {"n_estimators": 100,
-                  "n_jobs": 0,
-                  "learning_rate": 0.1,
-                  "random_state": 0,
-                  "verbosity": 2}
-        return XGBoostRegressor(output_directory, kwargs=kwargs)
-    if regressor_name == "svr":
-        from regressors.svr import SVRRegressor
-        kwargs = {"kernel": "rbf",
-                  "degree": 3,
-                  "gamma": "scale",
-                  "coef0": 0.0,
-                  "tol": 0.001,
-                  "C": 1.0,
-                  "epsilon": 0.1,
-                  "verbose": verbose}
-        return SVRRegressor(output_directory, kwargs=kwargs)
-    if regressor_name == "ed1nn":
-        from regressors.classic_knn import ClassicKNNRegressor
-        kwargs = {"algorithm": "auto",
-                  "n_neighbors": 1,
-                  "n_jobs": -1,
-                  "metric": "euclidean"}
-        return ClassicKNNRegressor(output_directory, kwargs=kwargs)
-    if regressor_name == "ed5nn":
-        from regressors.classic_knn import ClassicKNNRegressor
-        kwargs = {"algorithm": "auto",
-                  "n_neighbors": 5,
-                  "n_jobs": -1,
-                  "metric": "euclidean"}
-        return ClassicKNNRegressor(output_directory, kwargs=kwargs)
+        print("[{}] Finding minimum length".format(module))
+        min_len = np.inf
+        for i in range(len(X_train)):
+            x = X_train.iloc[i, :]
+            all_len = [len(y) for y in x]
+            min_len = min(min(all_len), min_len)
+        for i in range(len(X_test)):
+            x = X_test.iloc[i, :]
+            all_len = [len(y) for y in x]
+            min_len = min(min(all_len), min_len)
+        print("[{}] Minimum length: {}".format(module, min_len))
 
+        for regressor_name in regressors:
+            print("[{}] Regressor: {}".format(module, regressor_name))
+            for itr in iterations:
+                output_directory = output_path
+                if norm != "none":
+                    output_directory = output_directory.replace(task + "/", task + "_" + norm + "/")
+                output_directory = output_directory + regressor_name + '/' + problem + '/itr_' + str(itr) + '/'
+                create_directory(output_directory)
 
-#####################################################
-# Program starts
-#####################################################
-# variables
-machine = "pc"
-regressors = ["resnet", "fcn", "inception", "xgboost", "random_forest", "svr", "ed1nn", "ed5nn"]
-regressor_name = "resnet"
-normalise = "none"
+                print("[{}] Iteration: {}".format(module, itr))
+                print("[{}] Output Dir: {}".format(module, output_directory))
 
-# problems = ["LFMC", "AcetoneConcentration", "EthanolConcentration", "BenzeneConcentration",
-#             "NewsHeadlineSentiment", "NewsTitleSentiment",
-#             "IEEEPPG", "PPGDalia",
-#             "CoolerCondition", "ValveCondition", "PumpLeakage", "HydraulicAccumulator"]
-problems = ["IEEEPPG", "PPGDalia",
-            "CoolerCondition", "ValveCondition", "PumpLeakage", "HydraulicAccumulator",
-            "NewsHeadlineSentiment", "NewsTitleSentiment"]
-for problem in problems:
-    data_folder = tools.get_data_folder(machine) + problem + "/"
-    print("[Experiments] Data folder: {}".format(data_folder))
+                print("[{}] Reshaping data".format(module))
+                x_train = process_data(regressor_name, X_train, normalise=norm, min_len=min_len)
+                x_test = process_data(regressor_name, X_test, normalise=norm, min_len=min_len)
 
-    train_file = data_folder + problem + "_TRAIN.ts"
-    test_file = data_folder + problem + "_TEST.ts"
+                print("[{}] X_train: {}".format(module, x_train.shape))
+                print("[{}] X_test: {}".format(module, x_test.shape))
 
-    print("[Experiments] Loading train data")
-    X_train, y_train = load_from_tsfile_to_dataframe(train_file)
+                regressor = fit_regressor(output_directory, regressor_name, x_train, y_train, x_test, y_test, itr=itr)
 
-    print("[Experiments] Loading test data")
-    X_test, y_test = load_from_tsfile_to_dataframe(test_file)
+                y_pred = regressor.predict(x_test)
+                df_metrics = calculate_regression_metrics(y_test, y_pred)
 
-    print("[Experiments] Reshaping data")
-    X_train = process_data(regressor_name, X_train, normalise=normalise)
-    X_test = process_data(regressor_name, X_test, normalise=normalise)
+                print(df_metrics)
 
-    print("[Experiments] X_train: {}".format(X_train.shape))
-    print("[Experiments] X_test: {}".format(X_test.shape))
-
-    input_shape = X_train.shape[1:]
-    verbose = True
-
-    itr = "iter_0"
-    if normalise == "standard":
-        output_directory = "output/standard/"
-    elif normalise == "minmax":
-        output_directory = "output/minmax/"
-    else:
-        output_directory = "output/unnorm/"
-
-    output_directory = output_directory + regressor_name + '/' + problem + '/' + itr + '/'
-    create_directory(output_directory)
-
-    model = fit_regressor(output_directory, regressor_name, X_train, y_train, X_test, y_test)
-
-    y_pred, test_duration = model.predict(X_test)
-    df_metrics = calculate_regression_metrics(y_test, y_pred, test_duration)
-    df_metrics.to_csv(output_directory + 'df_metrics.csv', index=False)
-
-    print("[Experiments]", df_metrics)
+                df_metrics.to_csv(output_directory + 'regression_experiment.csv', index=False)

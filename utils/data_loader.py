@@ -1,7 +1,37 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
+name = "DataLoader"
+
+##############################################################################################################
+# Regression
+##############################################################################################################
+regression_datasets = ["AustraliaRainfall",
+                       "HouseholdPowerConsumption1",
+                       "HouseholdPowerConsumption2",
+                       "BeijingPM25Quality",
+                       "BeijingPM10Quality",
+                       "Covid3Month",
+                       "LiveFuelMoistureContent",
+                       "FloodModeling1",
+                       "FloodModeling2",
+                       "FloodModeling3",
+                       "AppliancesEnergy",
+                       "BenzeneConcentration",
+                       "NewsHeadlineSentiment",
+                       "NewsTitleSentiment",
+                       "BIDMC32RR",
+                       "BIDMC32HR",
+                       "BIDMC32SpO2",
+                       "IEEEPPG",
+                       "PPGDalia"]
+
+
+##############################################################################################################
+# General functions
+##############################################################################################################
 class TsFileParseException(Exception):
     """
     Should be raised when parsing a .ts file and the format is incorrect.
@@ -516,3 +546,30 @@ def load_from_tsfile_to_dataframe(full_file_path_and_name, return_separate_X_and
             return data
     else:
         raise TsFileParseException("empty file")
+
+
+def get_data_path(task, machine="pc"):
+    import getpass
+    username = getpass.getuser()
+    if task == "regression":
+        if machine == "pc":
+            return "C:/Users/{}/workspace/Dataset/TS_Regression/".format(username)
+        elif machine == "linux":
+            return "/home/{}/workspace/Dataset/TS_Regression/".format(username)
+    return None
+
+
+def get_project_path(machine="pc"):
+    import getpass
+    username = getpass.getuser()
+    if machine == "pc":
+        return "C:/Users/{}/workspace/TSRegression/".format(username)
+    elif machine == "linux":
+        return "/home/{}/workspace/TSRegression/".format(username)
+
+
+def get_output_path(task, machine="pc"):
+    if task == "regression":
+        return get_project_path(machine=machine) + "output/regression/"
+
+    return None
