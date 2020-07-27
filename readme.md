@@ -17,7 +17,7 @@ The code is mainly divided as follows:
 * The [utils](utils) folder contains helper functions for the program.
 * After each run, the results will be saved to the [output](output) folder.
 
-### Dependencies
+## Dependencies
 All python packages needed are listed in [requirements.txt](requirements.txt) file
 and can be installed simply using the pip command. 
 
@@ -32,7 +32,7 @@ Some of the main packages are:
 * [tqdm](https://tqdm.github.io/)
 * [xgboost](https://xgboost.readthedocs.io/en/latest/)
 
-### Results
+## Results
 These are the results on the 19 Time series regression datasets from [Monash UEA UCR Time Series Regression Archive](http://timeseriesregression.org/).
 The initial benchmark results in the [paper](https://arxiv.org/abs/2006.10996) showed that a simple linear model such as Rocket
 performs best for the time series regression task. 
