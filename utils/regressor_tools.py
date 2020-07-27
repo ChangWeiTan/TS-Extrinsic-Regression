@@ -7,17 +7,29 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from tqdm import tqdm
 
-from utils.tools import uniform_scaling
+from utils.data_processor import uniform_scaling
 
 name = "RegressorTools"
 
 classical_ml_models = ["xgboost", "svr", "random_forest"]
 deep_learning_models = ["fcn", "resnet", "inception"]
 tsc_models = ["rocket"]
+all_models = classical_ml_models + deep_learning_models + tsc_models
 
 
 def fit_regressor(output_directory, regressor_name, X_train, y_train,
                   X_val=None, y_val=None, itr=1):
+    """
+    This is a function to fit a regression model given the name and data
+    :param output_directory:
+    :param regressor_name:
+    :param X_train:
+    :param y_train:
+    :param X_val:
+    :param y_val:
+    :param itr:
+    :return:
+    """
     print("[{}] Fitting regressor".format(name))
     start_time = time()
 
@@ -29,11 +41,20 @@ def fit_regressor(output_directory, regressor_name, X_train, y_train,
     else:
         regressor.fit(X_train, y_train)
     elapsed_time = time() - start_time
-    print("[{}] Classifier fitted, took {}s".format(name, elapsed_time))
+    print("[{}] Regressor fitted, took {}s".format(name, elapsed_time))
     return regressor
 
 
 def create_regressor(regressor_name, input_shape, output_directory, verbose=1, itr=1):
+    """
+    This is a function to create the regression model
+    :param regressor_name:
+    :param input_shape:
+    :param output_directory:
+    :param verbose:
+    :param itr:
+    :return:
+    """
     print("[{}] Creating regressor".format(name))
     # SOTA TSC deep learning
     if regressor_name == "resnet":
@@ -71,68 +92,61 @@ def create_regressor(regressor_name, input_shape, output_directory, verbose=1, i
         return classical_models.SVRRegressor(output_directory, verbose)
 
 
-def process_data(regressor_name, X, min_len, normalise=None):
-    if regressor_name in classical_ml_models:
-        tmp = []
-        for i in tqdm(range(len(X))):
-            # 1. flatten
-            # 2. fill missing values
+def process_data(X, min_len, normalise=None):
+    """
+    This is a function to process the data, i.e. convert dataframe to numpy array
+    :param X:
+    :param min_len:
+    :param normalise:
+    :return:
+    """
+    tmp = []
+    for i in tqdm(range(len(X))):
+        _x = X.iloc[i, :].copy(deep=True)
 
-            tmp2 = []
-            for j in range(0, len(X.columns)):
-                x = X.iloc[i, j].reset_index(drop=True)
-                x.interpolate(method='linear', inplace=True, limit_direction='both')
-                x = x.values[:min_len]
-                if normalise == "standard":
-                    x = StandardScaler().fit_transform(x.reshape(-1, 1))
-                elif normalise == "minmax":
-                    x = MinMaxScaler().fit_transform(x.reshape(-1, 1))
-                x = pd.DataFrame(x)
-                tmp2 = tmp2 + x.values.tolist()
-            tmp2 = pd.DataFrame(tmp2).transpose()
+        # 1. find the maximum length of each dimension
+        all_len = [len(y) for y in _x]
+        max_len = max(all_len)
 
-            tmp.append(tmp2)
+        # 2. adjust the length of each dimension
+        _y = []
+        for y in _x:
+            # 2.1 fill missing values
+            if y.isnull().any():
+                y = y.interpolate(method='linear', limit_direction='both')
 
-        X = pd.concat(tmp).reset_index(drop=True)
-    else:
-        tmp = []
-        for i in tqdm(range(len(X))):
-            _x = X.iloc[i, :].copy(deep=True)
+            # 2.2. if length of each dimension is different, uniformly scale the shorted one to the max length
+            if len(y) < max_len:
+                y = uniform_scaling(y, max_len)
+            _y.append(y)
+        _y = np.array(np.transpose(_y))
 
-            # 1. find the maximum length of each dimension
-            all_len = [len(y) for y in _x]
-            max_len = max(all_len)
+        # 3. adjust the length of the series, chop of the longer series
+        _y = _y[:min_len, :]
 
-            # 2. adjust the length of each dimension
-            _y = []
-            for y in _x:
-                # 2.1 fill missing values
-                if y.isnull().any():
-                    y = y.interpolate(method='linear', limit_direction='both')
+        # 4. normalise the series
+        if normalise == "standard":
+            scaler = StandardScaler().fit(_y)
+            _y = scaler.transform(_y)
+        if normalise == "minmax":
+            scaler = MinMaxScaler().fit(_y)
+            _y = scaler.transform(_y)
 
-                # 2.2. if length of each dimension is different, uniformly scale the shorted one to the max length
-                if len(y) < max_len:
-                    y = uniform_scaling(y, max_len)
-                _y.append(y)
-            _y = np.array(np.transpose(_y))
-
-            # 3. adjust the length of the series, chop of the longer series
-            _y = _y[:min_len, :]
-
-            # 4. normalise the series
-            if normalise == "standard":
-                scaler = StandardScaler().fit(_y)
-                _y = scaler.transform(_y)
-            if normalise == "minmax":
-                scaler = MinMaxScaler().fit(_y)
-                _y = scaler.transform(_y)
-
-            tmp.append(_y)
-        X = np.array(tmp)
+        tmp.append(_y)
+    X = np.array(tmp)
     return X
 
 
 def calculate_regression_metrics(y_true, y_pred, y_true_val=None, y_pred_val=None):
+    """
+    This is a function to calculate metrics for regression.
+    The metrics being calculated are RMSE and MAE.
+    :param y_true:
+    :param y_pred:
+    :param y_true_val:
+    :param y_pred_val:
+    :return:
+    """
     res = pd.DataFrame(data=np.zeros((1, 2), dtype=np.float), index=[0],
                        columns=['rmse', 'mae'])
     res['rmse'] = math.sqrt(mean_squared_error(y_true, y_pred))

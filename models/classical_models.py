@@ -3,9 +3,10 @@ import time
 from utils.tools import save_train_duration, save_test_duration
 
 
-class Regressor():
+class Regressor:
     """
-    This is a super class for time series regressors
+    This is a super class for general machine learning regressors.
+    It takes features extracted from the time series as input and passed to a regression model.
     """
 
     def __init__(self, output_directory):
@@ -22,6 +23,9 @@ class Regressor():
         print("[{}] Fitting the regressor with data of {}".format(self.name, x_train.shape))
 
         start_time = time.time()
+
+        if len(x_train.shape) == 3:
+            x_train = x_train.reshape(x_train.shape[0], x_train.shape[1] * x_train.shape[2])
 
         self.cv(x_train, y_train)
 
@@ -53,6 +57,10 @@ class Regressor():
 
 
 class SVRRegressor(Regressor):
+    """
+    This is a wrapper for SupportVectorRegression (SVR) model.
+    """
+
     def __init__(self, output_directory, verbose=0, kwargs=None):
         super().__init__(output_directory)
         self.name = "SVR"
@@ -79,6 +87,10 @@ class SVRRegressor(Regressor):
 
 
 class RFRegressor(Regressor):
+    """
+    This is a wrapper for RandomForest model.
+    """
+
     def __init__(self, output_directory, verbose=0, kwargs=None):
         super().__init__(output_directory)
         self.name = "RandomForest"
@@ -110,6 +122,10 @@ class RFRegressor(Regressor):
 
 
 class XGBoostRegressor(Regressor):
+    """
+    This is a wrapper for XGBoost.
+    """
+
     def __init__(self, output_directory, verbose=0, kwargs=None):
         super().__init__(output_directory)
         self.name = "XGBoost"
@@ -139,39 +155,3 @@ class XGBoostRegressor(Regressor):
         self.model = XGBRegressor(**kwargs)
 
         return self.model
-
-    def cv(self, x_train, y_train):
-        params = self.params
-
-        min_mse = float("Inf")
-        best_params = {}
-        for max_depth, min_child_weight, subsample, colsample, eta in self.gridsearch_params:
-            print("[{}] CV with max_depth={}, min_child_weight={}, subsample={}, colsample={}, eta={}".format(self.name,
-                                                                                                              max_depth,
-                                                                                                              min_child_weight,
-                                                                                                              subsample,
-                                                                                                              colsample,
-                                                                                                              eta))
-            params['max_depth'] = max_depth
-            params['min_child_weight'] = min_child_weight
-            params['subsample'] = subsample
-            params['colsample'] = colsample
-            params['eta'] = eta
-
-            # Run CV
-            cv_results = self.model.cv(x_train, y_train,
-                                       params,
-                                       seed=1234,
-                                       nfold=5,
-                                       metrics={"mse"}, )
-            mean_mse = cv_results['test-mse-mean'].min()
-            print("\tMSE {}".format(mean_mse))
-            if mean_mse < min_mse:
-                min_mse = mean_mse
-                best_params = (max_depth, min_child_weight)
-
-        print("Best params: {}, {}, MSE: {}".format(best_params[0], best_params[1], min_mse))
-
-        self.build_model(**best_params)
-
-

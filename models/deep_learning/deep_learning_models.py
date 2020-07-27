@@ -9,6 +9,14 @@ from utils.tools import save_train_duration, save_test_duration
 
 
 def plot_epochs_metric(hist, file_name, model, metric='loss'):
+    """
+    Plot the train/test metrics of Deep Learning models
+    :param hist:
+    :param file_name:
+    :param model:
+    :param metric:
+    :return:
+    """
     import matplotlib.pyplot as plt
 
     plt.figure()
@@ -24,6 +32,9 @@ def plot_epochs_metric(hist, file_name, model, metric='loss'):
 
 
 class DLRegressor(TimeSeriesRegressor):
+    """
+    This is a superclass for Deep Learning models for Regression
+    """
     name = "DeepLearningTSR"
     model_init_file = "model_init.h5"
     best_model_file = "best_model.h5"
@@ -162,9 +173,7 @@ class DLRegressor(TimeSeriesRegressor):
             df_best_model.to_csv(self.output_directory + 'df_best_model.csv', index=False)
 
         # plot losses
-        plot_epochs_metric(self.hist,
-                           self.output_directory + 'epochs_loss.png',
-                           model=self.name)
+        self.metric = plot_epochs_metric(self.hist, self.output_directory + 'epochs_loss.png', model=self.name)
         if metric is not None:
             plot_epochs_metric(self.hist,
                                self.output_directory + 'epochs_' + metric + '.png',

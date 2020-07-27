@@ -117,6 +117,10 @@ def apply_kernels(X, kernels, stride=1):
 
 
 class RocketRegressor(TimeSeriesRegressor):
+    """
+    This is a class implementing Rocket for time series regression.
+    The code is adapted by the authors from the original Rocket implementation at https://github.com/angus924/rocket
+    """
 
     def __init__(self, output_directory, verbose, n_kernels=10000):
         super().__init__(output_directory)

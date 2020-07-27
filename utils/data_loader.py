@@ -1,13 +1,9 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
 name = "DataLoader"
 
-##############################################################################################################
-# Regression
-##############################################################################################################
 regression_datasets = ["AustraliaRainfall",
                        "HouseholdPowerConsumption1",
                        "HouseholdPowerConsumption2",
@@ -29,9 +25,7 @@ regression_datasets = ["AustraliaRainfall",
                        "PPGDalia"]
 
 
-##############################################################################################################
-# General functions
-##############################################################################################################
+# The following code is adapted from the python package sktime to read .ts file.
 class TsFileParseException(Exception):
     """
     Should be raised when parsing a .ts file and the format is incorrect.
@@ -546,30 +540,3 @@ def load_from_tsfile_to_dataframe(full_file_path_and_name, return_separate_X_and
             return data
     else:
         raise TsFileParseException("empty file")
-
-
-def get_data_path(task, machine="pc"):
-    import getpass
-    username = getpass.getuser()
-    if task == "regression":
-        if machine == "pc":
-            return "C:/Users/{}/workspace/Dataset/TS_Regression/".format(username)
-        elif machine == "linux":
-            return "/home/{}/workspace/Dataset/TS_Regression/".format(username)
-    return None
-
-
-def get_project_path(machine="pc"):
-    import getpass
-    username = getpass.getuser()
-    if machine == "pc":
-        return "C:/Users/{}/workspace/TSRegression/".format(username)
-    elif machine == "linux":
-        return "/home/{}/workspace/TSRegression/".format(username)
-
-
-def get_output_path(task, machine="pc"):
-    if task == "regression":
-        return get_project_path(machine=machine) + "output/regression/"
-
-    return None

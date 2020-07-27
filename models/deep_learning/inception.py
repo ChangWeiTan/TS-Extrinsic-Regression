@@ -4,6 +4,11 @@ from models.deep_learning.deep_learning_models import DLRegressor
 
 
 class InceptionTimeRegressor(DLRegressor):
+    """
+    This is a class implementing a single InceptionTime model for time series regression.
+    The code is adapted from https://github.com/hfawaz/InceptionTime designed for time series classification.
+    """
+
     def __init__(self, output_directory, input_shape, verbose=False, epochs=1500, batch_size=64,
                  nb_filters=32, use_residual=True, use_bottleneck=True, depth=6, kernel_size=41,
                  loss="mean_squared_error", metrics=None):
@@ -61,7 +66,6 @@ class InceptionTimeRegressor(DLRegressor):
         x = keras.layers.Add()([shortcut_y, out_tensor])
         x = keras.layers.Activation('relu')(x)
         return x
-
 
     def build_model(self, input_shape):
         input_layer = keras.layers.Input(input_shape)

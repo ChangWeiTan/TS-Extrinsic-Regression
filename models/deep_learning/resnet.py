@@ -4,6 +4,10 @@ from models.deep_learning.deep_learning_models import DLRegressor
 
 
 class ResNetRegressor(DLRegressor):
+    """
+    This is a class implementing the ResNet model for time series regression.
+    The code is adapted from https://github.com/hfawaz/dl-4-tsc designed for time series classification.
+    """
 
     def __init__(self, output_directory, input_shape, verbose=False, epochs=1500, batch_size=64,
                  loss="mean_squared_error", metrics=None):
