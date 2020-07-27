@@ -9,14 +9,14 @@
 
 import numpy as np
 
-from utils.data_loader import load_from_tsfile_to_dataframe, regression_datasets
-from utils.regressor_tools import process_data, fit_regressor, calculate_regression_metrics, all_models
+from utils.data_loader import load_from_tsfile_to_dataframe
+from utils.regressor_tools import process_data, fit_regressor, calculate_regression_metrics
 from utils.tools import create_directory
 
 module = "RegressionExperiment"
 data_path = "data/"
 problems = ["Sample"]       # see data_loader.regression_datasets
-regressors = all_models     # see regressor_tools.all_models
+regressors = ["xgboost"]    # see regressor_tools.all_models
 iterations = [1]
 norm = "none"               # none, standard, minmax
 
