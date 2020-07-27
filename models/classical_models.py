@@ -42,6 +42,9 @@ class Regressor:
 
         start_time = time.time()
 
+        if len(x_test.shape) == 3:
+            x_test = x_test.reshape(x_test.shape[0], x_test.shape[1] * x_test.shape[2])
+
         y_pred = self.model.predict(x_test)
 
         test_duration = time.time() - start_time
