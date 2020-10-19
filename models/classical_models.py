@@ -1,6 +1,9 @@
 import time
 
-from utils.tools import save_train_duration, save_test_duration
+from scipy.stats import loguniform
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+
+from utils.tools import save_test_duration, save_train_duration
 
 
 class Regressor:
@@ -22,7 +25,7 @@ class Regressor:
     def fit(self, x_train, y_train):
         print("[{}] Fitting the regressor with data of {}".format(self.name, x_train.shape))
 
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         if len(x_train.shape) == 3:
             x_train = x_train.reshape(x_train.shape[0], x_train.shape[1] * x_train.shape[2])
@@ -31,7 +34,7 @@ class Regressor:
 
         self.model.fit(x_train, y_train)
 
-        self.train_duration = time.time() - start_time
+        self.train_duration = time.perf_counter() - start_time
 
         save_train_duration(self.output_directory + 'train_duration.csv', self.train_duration)
 
@@ -40,14 +43,14 @@ class Regressor:
     def predict(self, x_test):
         print("[{}] Predicting data of {}".format(self.name, x_test.shape))
 
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         if len(x_test.shape) == 3:
             x_test = x_test.reshape(x_test.shape[0], x_test.shape[1] * x_test.shape[2])
 
         y_pred = self.model.predict(x_test)
 
-        test_duration = time.time() - start_time
+        test_duration = time.perf_counter() - start_time
 
         save_test_duration(self.output_directory + 'test_duration.csv', test_duration)
 
@@ -70,12 +73,7 @@ class SVRRegressor(Regressor):
 
         if kwargs is None:
             kwargs = {"kernel": "rbf",
-                      "degree": 3,
                       "gamma": "scale",
-                      "coef0": 0.0,
-                      "tol": 0.001,
-                      "C": 1.0,
-                      "epsilon": 0.1,
                       "verbose": verbose}
         self.params = kwargs
         self.build_model(**kwargs)
@@ -87,6 +85,44 @@ class SVRRegressor(Regressor):
 
         self.model = SVR(**kwargs)
         return self.model
+
+    def cv(self, x_train, y_train, x_val=None, y_val=None, hpo="random"):
+        from sklearn.svm import SVR
+
+        params = self.params
+        params["verbose"] = 0
+
+        best_param = None
+        best_param_score = None
+        if hpo == "grid":
+            search_params = [{"kernel": ["rbf"],
+                              "gamma": [0.001, 0.01, 0.1, 1],
+                              "C": [0.1, 1, 10, 100]},
+                             {"kernel": ["sigmoid"],
+                              "gamma": [0.001, 0.01, 0.1, 1],
+                              "C": [0.1, 1, 10, 100]}]
+
+            search = GridSearchCV(SVR(**params), search_params, n_jobs=-1, cv=3,
+                                  scoring="neg_mean_squared_error", verbose=1)
+            search.fit(x_train, y_train)
+
+            best_param = search.best_params_
+            best_param_score = search.best_score_
+        elif hpo == "random":
+            search_params = {"kernel": ["rbf", "sigmoid", "linear"],
+                             "gamma": loguniform(0.001, 1),
+                             "C": loguniform(0.1, 100)}
+            search = RandomizedSearchCV(SVR(**params), search_params, n_jobs=-1, cv=3,
+                                        random_state=1234,
+                                        scoring="neg_mean_squared_error", verbose=1)
+            search.fit(x_train, y_train)
+            best_param = search.best_params_
+            best_param_score = search.best_score_
+
+        if best_param is not None:
+            print("Best Param: {}, with scores: {}".format(best_param, best_param_score))
+            self.params.update(best_param)
+            self.build_model(**self.params)
 
 
 class RFRegressor(Regressor):
@@ -101,16 +137,7 @@ class RFRegressor(Regressor):
         if kwargs is None:
             kwargs = {"n_estimators": 100,
                       "n_jobs": -1,
-                      "random_state": 0,
-                      "verbose": verbose,
-                      # Parameters that we are going to tune.
-                      "max_depth": 6,
-                      "min_child_weight": 1,
-                      "eta": .3,
-                      "subsample": 1,
-                      "colsample_bytree": 1,
-                      # Other parameters
-                      "objective": "reg:linear", }
+                      "verbose": verbose}
 
         self.params = kwargs
         self.build_model(**kwargs)
@@ -122,6 +149,46 @@ class RFRegressor(Regressor):
 
         self.model = RandomForestRegressor(**kwargs)
         return self.model
+
+    def cv(self, x_train, y_train, x_val=None, y_val=None, hpo="random"):
+        from sklearn.ensemble import RandomForestRegressor
+
+        params = self.params
+        params["verbose"] = 0
+
+        best_param = None
+        best_param_score = None
+        if hpo == "grid":
+            search_params = {
+                "n_estimators": [100, 500, 1000],
+                "max_depth": [5, 10, 15, 20],
+                "min_samples_leaf": [1, 5, 10, 15]
+            }
+            search = GridSearchCV(RandomForestRegressor(**params), search_params,
+                                  n_jobs=1, cv=3,
+                                  scoring="neg_mean_squared_error", verbose=True)
+            search.fit(x_train, y_train)
+            best_param = search.best_params_
+            best_param_score = search.best_score_
+        elif hpo == "random":
+            search_params = {
+                "n_estimators": [100, 500, 1000],
+                "max_depth": [5, 10, 15, 20],
+                "min_samples_leaf": [1, 5, 10, 15]
+            }
+            search = RandomizedSearchCV(RandomForestRegressor(**params), search_params,
+                                        n_jobs=1, cv=3,
+                                        random_state=1234,
+                                        scoring="neg_mean_squared_error", verbose=True)
+            search.fit(x_train, y_train)
+            best_param = search.best_params_
+            best_param_score = search.best_score_
+
+        if best_param is not None:
+            print("Best Param: {}, with scores: {}".format(best_param, best_param_score))
+            self.params.update(best_param)
+            self.params["n_jobs"] = -1
+            self.build_model(**self.params)
 
 
 class XGBoostRegressor(Regressor):
@@ -136,18 +203,8 @@ class XGBoostRegressor(Regressor):
         if kwargs is None:
             kwargs = {"n_estimators": 100,
                       "n_jobs": 0,
-                      "learning_rate": 0.1,
-                      "random_state": 0,
-                      "verbosity  ": verbose}
+                      "verbosity": verbose}
         self.params = kwargs
-        self.gridsearch_params = [
-            (max_depth, min_child_weight, subsample, colsample, eta)
-            for max_depth in range(9, 12)
-            for min_child_weight in range(5, 8)
-            for subsample in [i / 10. for i in range(7, 11)]
-            for colsample in [i / 10. for i in range(7, 11)]
-            for eta in [.3, .2, .1, .05, .01, .005]
-        ]
         self.build_model(**kwargs)
 
         return
@@ -158,3 +215,102 @@ class XGBoostRegressor(Regressor):
         self.model = XGBRegressor(**kwargs)
 
         return self.model
+
+    def cv(self, x_train, y_train, x_val=None, y_val=None, hpo="random"):
+        from xgboost import XGBRegressor
+
+        params = self.params
+        params["verbosity"] = 0
+        if x_val is not None:
+            fit_params = {"early_stopping_rounds": 20,
+                          "eval_set": [(x_val, y_val)],
+                          "verbose": False}
+        else:
+            fit_params = {"verbose": False}
+
+        best_param = None
+        best_param_score = None
+        if hpo == "grid":
+            search_params = {
+                "n_estimators": [100, 500, 1000],
+                "max_depth": [5, 10, 15, 20],
+                "learning_rate": [0.1, 0.05, 0.01]
+            }
+            search = GridSearchCV(XGBRegressor(**params), search_params, n_jobs=1, cv=3,
+                                  scoring="neg_mean_squared_error", verbose=True)
+            search.fit(x_train, y_train, **fit_params)
+            best_param = search.best_params_
+            best_param_score = search.best_score_
+        elif hpo == "random":
+            search_params = {
+                "n_estimators": [100, 500, 1000],
+                "max_depth": [5, 10, 15, 20],
+                "learning_rate": loguniform(loc=0.01, scale=0.1)
+            }
+            search = RandomizedSearchCV(XGBRegressor(**params), search_params, n_jobs=1, cv=3,
+                                        random_state=1234,
+                                        scoring="neg_mean_squared_error", verbose=True)
+            search.fit(x_train, y_train, **fit_params)
+            best_param = search.best_params_
+            best_param_score = search.best_score_
+
+        if best_param is not None:
+            print("Best Param: {}, with scores: {}".format(best_param, best_param_score))
+            self.params.update(best_param)
+            self.params["n_jobs"] = 0
+            self.build_model(**self.params)
+
+
+class LinearRegressor(Regressor):
+    def __init__(self, output_directory, kwargs, type="lr"):
+        super().__init__(output_directory)
+        self.name = type.upper()
+        self.params = kwargs
+        self.build_model(**kwargs)
+
+        return
+
+    def build_model(self, **kwargs):
+        if self.name == "ridge":
+            from sklearn.linear_model import RidgeCV
+            self.model = RidgeCV(**kwargs)
+        else:
+            from sklearn.linear_model import LinearRegression
+            self.model = LinearRegression(**kwargs)
+        return self.model
+
+    def fit(self, x_train, y_train):
+        print("[{}] Fitting the regressor with data of {}".format(self.name, x_train.shape))
+
+        start_time = time.perf_counter()
+
+        if len(x_train.shape) == 3:
+            x_train = x_train.reshape(x_train.shape[0], x_train.shape[1] * x_train.shape[2])
+
+        self.cv(x_train, y_train)
+
+        self.model.fit(x_train, y_train)
+
+        self.train_duration = time.perf_counter() - start_time
+
+        save_train_duration(self.output_directory + 'train_duration.csv', self.train_duration)
+
+        print("[{}] Fitting completed, took {}s".format(self.name, self.train_duration))
+
+    def predict(self, x_test):
+        print("[{}] Predicting data of {}".format(self.name, x_test.shape))
+
+        start_time = time.perf_counter()
+
+        if len(x_test.shape) == 3:
+            x_test = x_test.reshape(x_test.shape[0], x_test.shape[1] * x_test.shape[2])
+
+        y_pred = self.model.predict(x_test)
+
+        test_duration = time.perf_counter() - start_time
+
+        save_test_duration(self.output_directory + 'test_duration.csv', test_duration)
+
+        print("[{}] Predicting completed, took {}s".format(self.name, test_duration))
+
+        return y_pred

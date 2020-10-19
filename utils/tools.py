@@ -1,6 +1,19 @@
+import multiprocessing
 import os
 import numpy as np
 import pandas as pd
+
+
+def initialise_multithread(num_cores=-1):
+    """
+    Initialise pool workers for multi processing
+    :param num_cores:
+    :return:
+    """
+    if (num_cores == -1) or (num_cores >= multiprocessing.cpu_count()):
+        num_cores = multiprocessing.cpu_count() - 1
+    p = multiprocessing.Pool(num_cores)
+    return p
 
 
 def create_directory(directory_path):

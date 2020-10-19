@@ -14,14 +14,21 @@ import numpy as np
 from utils.data_loader import load_from_tsfile_to_dataframe
 from utils.regressor_tools import process_data, fit_regressor, calculate_regression_metrics
 from utils.tools import create_directory
+from utils.transformer_tools import fit_transformer
 
-# input arguments
 module = "RegressionExperiment"
 data_path = "data/"
-problem = "Sample"          # see data_loader.regression_datasets
-regressor_name = "rocket"   # see regressor_tools.all_models
+problem = "Sample"  # see data_loader.regression_datasets
+regressor_name = "rocket"  # see regressor_tools.all_models
+transformer_name = "none"  # see transformer_tools.transformers
 itr = 1
-norm = "none"               # none, standard, minmax
+norm = "none"  # none, standard, minmax
+
+# transformer parameters
+flatten = False  # if flatten, do not transform per dimension
+n_components = 10  # number of principal components
+n_basis = 10  # number of basis functions
+bspline_order = 4  # bspline order
 
 # parse arguments
 try:
@@ -62,6 +69,7 @@ if __name__ == '__main__':
     print("[{}] Iteration: {}".format(module, itr))
     print("[{}] Problem: {}".format(module, problem))
     print("[{}] Regressor: {}".format(module, regressor_name))
+    print("[{}] Transformer: {}".format(module, transformer_name))
     print("[{}] Normalisation: {}".format(module, norm))
 
     # set data folder, train & test
@@ -95,6 +103,22 @@ if __name__ == '__main__':
     print("[{}] Reshaping data".format(module))
     x_train = process_data(X_train, normalise=norm, min_len=min_len)
     x_test = process_data(X_test, normalise=norm, min_len=min_len)
+
+    # transform the data if needed
+    if transformer_name != "none":
+        if transformer_name == "pca":
+            kwargs = {"n_components": n_components}
+        elif transformer_name == "fpca":
+            kwargs = {"n_components": n_components}
+        elif transformer_name == "fpca_bspline":
+            kwargs = {"n_components": n_components,
+                      "n_basis": n_basis,
+                      "order": bspline_order,
+                      "smooth": "bspline"}
+        else:
+            kwargs = {}
+        x_train, transformer = fit_transformer(transformer_name, x_train, flatten=flatten, **kwargs)
+        x_test = transformer.transform(x_test)
 
     print("[{}] X_train: {}".format(module, x_train.shape))
     print("[{}] X_test: {}".format(module, x_test.shape))

@@ -1,6 +1,6 @@
 import time
 
-import keras
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 
@@ -70,7 +70,7 @@ class DLRegressor(TimeSeriesRegressor):
     def fit(self, x_train, y_train, x_val=None, y_val=None, monitor_val=False):
         print('[{}] Training'.format(self.name))
 
-        start_time = time.time()
+        start_time = time.perf_counter()
 
         self.X_train = x_train
         self.y_train = y_train
@@ -83,17 +83,17 @@ class DLRegressor(TimeSeriesRegressor):
 
         file_path = self.output_directory + self.best_model_file
         if (x_val is not None) and monitor_val:
-            reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
+            reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
                                                           factor=0.5, patience=50,
                                                           min_lr=0.0001)
-            model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path,
+            model_checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath=file_path,
                                                                monitor='val_loss',
                                                                save_best_only=True)
         else:
-            reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='loss',
+            reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss',
                                                           factor=0.5, patience=50,
                                                           min_lr=0.0001)
-            model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path,
+            model_checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath=file_path,
                                                                monitor='loss',
                                                                save_best_only=True)
         self.callbacks = [reduce_lr, model_checkpoint]
@@ -113,7 +113,7 @@ class DLRegressor(TimeSeriesRegressor):
                                        batch_size=mini_batch_size,
                                        callbacks=self.callbacks)
 
-        self.train_duration = time.time() - start_time
+        self.train_duration = time.perf_counter() - start_time
 
         save_train_duration(self.output_directory + 'train_duration.csv', self.train_duration)
 
@@ -121,12 +121,12 @@ class DLRegressor(TimeSeriesRegressor):
 
     def predict(self, x):
         print('[{}] Predicting'.format(self.name))
-        start_time = time.time()
-        model = keras.models.load_model(self.output_directory + self.best_model_file)
+        start_time = time.perf_counter()
+        model = tf.keras.models.load_model(self.output_directory + self.best_model_file)
         yhat = model.predict(x)
 
-        keras.backend.clear_session()
-        test_duration = time.time() - start_time
+        tf.keras.backend.clear_session()
+        test_duration = time.perf_counter() - start_time
 
         save_test_duration(self.output_directory + 'test_duration.csv', test_duration)
 

@@ -1,4 +1,4 @@
-import keras
+import tensorflow as tf
 
 from models.deep_learning.deep_learning_models import DLRegressor
 
@@ -31,7 +31,7 @@ class InceptionTimeRegressor(DLRegressor):
 
     def _inception_module(self, input_tensor, stride=1, activation='linear'):
         if self.use_bottleneck and int(input_tensor.shape[-1]) > 1:
-            input_inception = keras.layers.Conv1D(filters=self.bottleneck_size, kernel_size=1,
+            input_inception = tf.keras.layers.Conv1D(filters=self.bottleneck_size, kernel_size=1,
                                                   padding='same', activation=activation, use_bias=False)(input_tensor)
         else:
             input_inception = input_tensor
@@ -42,33 +42,33 @@ class InceptionTimeRegressor(DLRegressor):
         conv_list = []
 
         for i in range(len(kernel_size_s)):
-            conv_list.append(keras.layers.Conv1D(filters=self.nb_filters, kernel_size=kernel_size_s[i],
+            conv_list.append(tf.keras.layers.Conv1D(filters=self.nb_filters, kernel_size=kernel_size_s[i],
                                                  strides=stride, padding='same', activation=activation, use_bias=False)(
                 input_inception))
 
-        max_pool_1 = keras.layers.MaxPool1D(pool_size=3, strides=stride, padding='same')(input_tensor)
+        max_pool_1 = tf.keras.layers.MaxPool1D(pool_size=3, strides=stride, padding='same')(input_tensor)
 
-        conv_6 = keras.layers.Conv1D(filters=self.nb_filters, kernel_size=1,
+        conv_6 = tf.keras.layers.Conv1D(filters=self.nb_filters, kernel_size=1,
                                      padding='same', activation=activation, use_bias=False)(max_pool_1)
 
         conv_list.append(conv_6)
 
-        x = keras.layers.Concatenate(axis=2)(conv_list)
-        x = keras.layers.BatchNormalization()(x)
-        x = keras.layers.Activation(activation='relu')(x)
+        x = tf.keras.layers.Concatenate(axis=2)(conv_list)
+        x = tf.keras.layers.BatchNormalization()(x)
+        x = tf.keras.layers.Activation(activation='relu')(x)
         return x
 
     def _shortcut_layer(self, input_tensor, out_tensor):
-        shortcut_y = keras.layers.Conv1D(filters=int(out_tensor.shape[-1]), kernel_size=1,
+        shortcut_y = tf.keras.layers.Conv1D(filters=int(out_tensor.shape[-1]), kernel_size=1,
                                          padding='same', use_bias=False)(input_tensor)
-        shortcut_y = keras.layers.normalization.BatchNormalization()(shortcut_y)
+        shortcut_y = tf.keras.layers.normalization.BatchNormalization()(shortcut_y)
 
-        x = keras.layers.Add()([shortcut_y, out_tensor])
-        x = keras.layers.Activation('relu')(x)
+        x = tf.keras.layers.Add()([shortcut_y, out_tensor])
+        x = tf.keras.layers.Activation('relu')(x)
         return x
 
     def build_model(self, input_shape):
-        input_layer = keras.layers.Input(input_shape)
+        input_layer = tf.keras.layers.Input(input_shape)
 
         x = input_layer
         input_res = input_layer
@@ -81,14 +81,14 @@ class InceptionTimeRegressor(DLRegressor):
                 x = self._shortcut_layer(input_res, x)
                 input_res = x
 
-        gap_layer = keras.layers.GlobalAveragePooling1D()(x)
+        gap_layer = tf.keras.layers.GlobalAveragePooling1D()(x)
 
-        output_layer = keras.layers.Dense(1, activation='linear')(gap_layer)
+        output_layer = tf.keras.layers.Dense(1, activation='linear')(gap_layer)
 
-        model = keras.models.Model(inputs=input_layer, outputs=output_layer)
+        model = tf.keras.models.Model(inputs=input_layer, outputs=output_layer)
 
         model.compile(loss=self.loss,
-                      optimizer=keras.optimizers.Adam(),
+                      optimizer=tf.keras.optimizers.Adam(),
                       metrics=self.metrics)
 
         return model

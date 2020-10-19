@@ -132,7 +132,7 @@ class RocketRegressor(TimeSeriesRegressor):
         self.regressor = RidgeCV(alphas=np.logspace(-3, 3, 10), normalize=True)
 
     def fit(self, x_train, y_train, x_val=None, y_val=None):
-        start_time = time.time()
+        start_time = time.perf_counter()
         print('[{}] Generating kernels'.format(self.name))
         self.kernels = generate_kernels(x_train.shape[1], self.n_kernels, x_train.shape[2])
         print('[{}] Applying kernels'.format(self.name))
@@ -140,7 +140,7 @@ class RocketRegressor(TimeSeriesRegressor):
 
         print('[{}] Training'.format(self.name))
         self.regressor.fit(x_training_transform, y_train)
-        self.train_duration = time.time() - start_time
+        self.train_duration = time.perf_counter() - start_time
 
         save_train_duration(self.output_directory + 'train_duration.csv', self.train_duration)
 
@@ -148,12 +148,12 @@ class RocketRegressor(TimeSeriesRegressor):
 
     def predict(self, x):
         print('[{}] Predicting'.format(self.name))
-        start_time = time.time()
+        start_time = time.perf_counter()
         print('[{}] Applying kernels'.format(self.name))
         x_test_transform = apply_kernels(x, self.kernels)
         y_pred = self.regressor.predict(x_test_transform)
 
-        test_duration = time.time() - start_time
+        test_duration = time.perf_counter() - start_time
         save_test_duration(self.output_directory + 'test_duration.csv', test_duration)
 
         print("[{}] Predicting completed, took {}s".format(self.name, test_duration))
