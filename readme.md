@@ -1,11 +1,11 @@
-# Time Series Regression
-This repository contains the source code for ``Time Series Regression``. 
+# Time Series Extrinsic Regression
+This repository contains the source code for ``Time Series Extrinsic Regression``. 
 We aim to learn the relationship between a time series and a scalar value. 
 We note the similarity with a parallel field in the Statistics community known as 
 ``Scalar-on-Function-Regression (SoFR)`` and is working on implementing those methods.  
 
 ## Data
-The archive containing 19 time series regression datasets can be found at [Monash UEA UCR Time Series Regression Archive](http://timeseriesregression.org/).
+The archive containing 19 time series regression datasets can be found at [Monash UEA UCR Time Series Extrinsic Regression Archive](http://timeseriesregression.org/).
 We recommend you to read the [paper](https://arxiv.org/abs/2006.10996) for a detailed discussion of the datasets and their sources.
 For demo, please use the data in the data folder provided in this repository
 
@@ -77,7 +77,7 @@ The full results can be obtained [here](http://timeseriesregression.org/data/ts_
 If you use any part of this work, please cite:
 ```
 @article{Tan2020Time,
-  title={Time Series Regression},
+  title={Time Series Extrinsic Regression},
   author={Tan, Chang Wei and Bergmeir, Christoph and Petitjean, Francois and Webb, Geoffrey I},
   journal={arXiv preprint arXiv:2006.12672},
   year={2020}
