@@ -74,33 +74,33 @@ def create_regressor(regressor_name, input_shape, output_directory, verbose=1, i
 
     # classical ML models
     if regressor_name == "xgboost":
-        from models import classical_regression_models
+        from models.classical_models import XGBoostRegressor
         kwargs = {"n_estimators": 100,
                   "n_jobs": 0,
                   "learning_rate": 0.1,
                   "random_state": itr - 1,
                   "verbosity  ": verbose}
-        return classical_regression_models.XGBoostRegressor(output_directory, verbose, kwargs)
+        return XGBoostRegressor(output_directory, verbose, kwargs)
     if regressor_name == "random_forest":
-        from models import classical_regression_models
+        from models.classical_models import RFRegressor
         kwargs = {"n_estimators": 100,
                   "n_jobs": -1,
                   "random_state": itr - 1,
                   "verbose": verbose}
-        return classical_regression_models.RFRegressor(output_directory, verbose, kwargs)
+        return RFRegressor(output_directory, verbose, kwargs)
     if regressor_name == "svr":
-        from models import classical_regression_models
-        return classical_regression_models.SVRRegressor(output_directory, verbose)
+        from models.classical_models import SVRRegressor
+        return SVRRegressor(output_directory, verbose)
 
     # linear models
     if regressor_name == "lr":
-        from models.classical_regression_models import LinearRegressor
+        from models.classical_models import LinearRegressor
         kwargs = {"fit_intercept": True,
                   "normalize": False,
                   "n_jobs": -1}
         return LinearRegressor(output_directory, kwargs, type=regressor_name)
     if regressor_name == "ridge":
-        from models.classical_regression_models import LinearRegressor
+        from models.classical_models import LinearRegressor
         kwargs = {"fit_intercept": True,
                   "normalize": False}
         return LinearRegressor(output_directory, kwargs, type=regressor_name)
