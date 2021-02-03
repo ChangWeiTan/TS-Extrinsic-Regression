@@ -71,12 +71,12 @@ The initial benchmark results in the [paper](https://arxiv.org/abs/2006.10996) s
 performs best for the time series regression task. 
 The full results can be obtained [here](http://timeseriesregression.org/data/ts_regression.xlsx).
 
-![image](http://timeseriesregression.org/figures/ts_regression_cd.png)
+![image](http://tseregression.org/figures/ts_regression_cd.png)
 
 ## Reference
 If you use any part of this work, please cite:
 ```
-@article{Tan2020Time,
+@article{Tan2020TSER,
   title={Time Series Extrinsic Regression},
   author={Tan, Chang Wei and Bergmeir, Christoph and Petitjean, Francois and Webb, Geoffrey I},
   journal={arXiv preprint arXiv:2006.12672},
