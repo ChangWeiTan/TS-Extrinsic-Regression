@@ -1,8 +1,7 @@
 import time
 
-import tensorflow as tf
 import numpy as np
-import pandas as pd
+import tensorflow as tf
 
 from models.time_series_models import TimeSeriesRegressor
 from utils.tools import save_train_duration, save_test_duration
@@ -11,11 +10,12 @@ from utils.tools import save_train_duration, save_test_duration
 def plot_epochs_metric(hist, file_name, model, metric='loss'):
     """
     Plot the train/test metrics of Deep Learning models
-    :param hist:
-    :param file_name:
-    :param model:
-    :param metric:
-    :return:
+
+    Inputs:
+        hist: training history
+        file_name: save file name
+        model: model name
+        metric: metric
     """
     import matplotlib.pyplot as plt
 
@@ -23,6 +23,13 @@ def plot_epochs_metric(hist, file_name, model, metric='loss'):
     plt.plot(hist.history[metric], label="train")
     if "val_" + metric in hist.history.keys():
         plt.plot(hist.history['val_' + metric], label="val")
+
+    min_train = np.min(hist.history["loss"])
+    idx_train = np.argmin(hist.history["loss"])
+    plt.plot(idx_train, min_train, "rx", label="best epoch")
+    if "val_" + metric in hist.history.keys():
+        plt.plot(idx_train, hist.history['val_' + metric][idx_train], "rx")
+
     plt.title(model + " " + metric)
     plt.ylabel(metric, fontsize='large')
     plt.xlabel('epoch', fontsize='large')
@@ -39,8 +46,29 @@ class DLRegressor(TimeSeriesRegressor):
     model_init_file = "model_init.h5"
     best_model_file = "best_model.h5"
 
-    def __init__(self, output_directory, input_shape, verbose=False, epochs=200, batch_size=16,
-                 loss="mean_squared_error", metrics=None):
+    def __init__(
+            self,
+            output_directory,
+            input_shape,
+            verbose=False,
+            epochs=200,
+            batch_size=16,
+            loss="mean_squared_error",
+            metrics=None
+    ):
+        """
+        Initialise the DL model
+
+        Inputs:
+            output_directory: path to store results/models
+            input_shape: input shape for the models
+            verbose: verbosity for the models
+            epochs: number of epochs to train the models
+            batch_size: batch size to train the models
+            loss: loss function for the models
+            metrics: metrics for the models
+        """
+
         super().__init__(output_directory)
         print('[{}] Creating Regressor'.format(self.name))
         self.X_train = None
@@ -60,14 +88,30 @@ class DLRegressor(TimeSeriesRegressor):
 
         self.model = self.build_model(input_shape)
 
-        self.model.summary()
-
-        self.model.save_weights(self.output_directory + self.model_init_file)
+        if self.model is not None:
+            self.model.summary()
+            self.model.save_weights(self.output_directory + self.model_init_file)
 
     def build_model(self, input_shape):
+        """
+        Build the DL models
+
+        Inputs:
+            input_shape: input shape for the models
+        """
         pass
 
     def fit(self, x_train, y_train, x_val=None, y_val=None, monitor_val=False):
+        """
+        Fit DL models
+
+        Inputs:
+            x_train: training data (num_examples, num_timestep, num_channels)
+            y_train: training target
+            x_val: validation data (num_examples, num_timestep, num_channels)
+            y_val: validation target
+            monitor_val: boolean indicating if model selection should be done on validation
+        """
         print('[{}] Training'.format(self.name))
 
         start_time = time.perf_counter()
@@ -84,18 +128,18 @@ class DLRegressor(TimeSeriesRegressor):
         file_path = self.output_directory + self.best_model_file
         if (x_val is not None) and monitor_val:
             reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
-                                                          factor=0.5, patience=50,
-                                                          min_lr=0.0001)
+                                                             factor=0.5, patience=50,
+                                                             min_lr=0.0001)
             model_checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath=file_path,
-                                                               monitor='val_loss',
-                                                               save_best_only=True)
+                                                                  monitor='val_loss',
+                                                                  save_best_only=True)
         else:
             reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='loss',
-                                                          factor=0.5, patience=50,
-                                                          min_lr=0.0001)
+                                                             factor=0.5, patience=50,
+                                                             min_lr=0.0001)
             model_checkpoint = tf.keras.callbacks.ModelCheckpoint(filepath=file_path,
-                                                               monitor='loss',
-                                                               save_best_only=True)
+                                                                  monitor='loss',
+                                                                  save_best_only=True)
         self.callbacks = [reduce_lr, model_checkpoint]
 
         # train the model
@@ -119,7 +163,25 @@ class DLRegressor(TimeSeriesRegressor):
 
         print('[{}] Training done!, took {}s'.format(self.name, self.train_duration))
 
+        plot_epochs_metric(self.hist,
+                           self.output_directory + 'epochs_loss.png',
+                           metric='loss',
+                           model=self.name)
+        for m in self.metrics:
+            plot_epochs_metric(self.hist,
+                               self.output_directory + 'epochs_{}.png'.format(m),
+                               metric=m,
+                               model=self.name)
+
     def predict(self, x):
+        """
+        Do prediction with DL models
+
+        Inputs:
+            x: data for prediction (num_examples, num_timestep, num_channels)
+        Outputs:
+            y_pred: prediction
+        """
         print('[{}] Predicting'.format(self.name))
         start_time = time.perf_counter()
         model = tf.keras.models.load_model(self.output_directory + self.best_model_file)
@@ -133,49 +195,3 @@ class DLRegressor(TimeSeriesRegressor):
         print('[{}] Prediction done!'.format(self.name))
 
         return yhat
-
-    def save_logs(self):
-        hist_df = pd.DataFrame(self.hist.history)
-        hist_df.to_csv(self.output_directory + 'history.csv', index=False)
-        if "mae" in hist_df.columns:
-            metric = "mae"
-        elif "mean_absolute_error" in hist_df.columns:
-            metric = "mean_absolute_error"
-        else:
-            metric = None
-
-        if "val_loss" in hist_df.columns:
-            index_best_model = hist_df['val_loss'].idxmin()
-            row_best_model = hist_df.loc[index_best_model]
-
-            df_best_model = pd.DataFrame(data=np.zeros((1, 6), dtype=np.float), index=[0],
-                                         columns=['best_model_train_loss',
-                                                  'best_model_val_loss',
-                                                  'best_model_train_mae',
-                                                  'best_model_val_mae',
-                                                  'best_model_learning_rate',
-                                                  'best_model_nb_epoch'])
-
-            df_best_model['best_model_train_loss'] = row_best_model['loss']
-            if "mae" in hist_df.columns:
-                df_best_model['best_model_train_mae'] = row_best_model['mae']
-            else:
-                df_best_model['best_model_train_mae'] = row_best_model['mean_absolute_error']
-            if 'val_loss' in row_best_model.index:
-                df_best_model['best_model_val_loss'] = row_best_model['val_loss']
-                if "val_mae" in hist_df.columns:
-                    df_best_model['best_model_val_mae'] = row_best_model['val_mae']
-                else:
-                    df_best_model['best_model_val_mae'] = row_best_model['val_mean_absolute_error']
-
-            df_best_model['best_model_nb_epoch'] = index_best_model
-
-            df_best_model.to_csv(self.output_directory + 'df_best_model.csv', index=False)
-
-        # plot losses
-        self.metric = plot_epochs_metric(self.hist, self.output_directory + 'epochs_loss.png', model=self.name)
-        if metric is not None:
-            plot_epochs_metric(self.hist,
-                               self.output_directory + 'epochs_' + metric + '.png',
-                               model=self.name,
-                               metric=metric)

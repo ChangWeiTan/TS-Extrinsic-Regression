@@ -1,5 +1,5 @@
 # Time Series Extrinsic Regression
-This repository contains the source code for ``Time Series Extrinsic Regression``. 
+This repository contains the source code for ``Time Series Extrinsic Regression`` (TSER). 
 We aim to learn the relationship between a time series and a scalar value. 
 We note the similarity with a parallel field in the Statistics community known as 
 ``Scalar-on-Function-Regression (SoFR)`` and is working on implementing those methods.  
@@ -71,16 +71,20 @@ The initial benchmark results in the [paper](https://arxiv.org/abs/2006.10996) s
 performs best for the time series regression task. 
 The full results can be obtained [here](http://timeseriesregression.org/data/ts_regression.xlsx).
 
-![image](http://tseregression.org/figures/ts_regression_cd.png)
+![image](http://timeseriesregression.org/figures/ts_regression_cd.png)
 
 ## Reference
 If you use any part of this work, please cite:
 ```
-@article{Tan2020TSER,
-  title={Time Series Extrinsic Regression},
+@article{
+  Tan2020TSER,
+  title={Time Series Extrinsic Regression}, 
   author={Tan, Chang Wei and Bergmeir, Christoph and Petitjean, Francois and Webb, Geoffrey I},
-  journal={arXiv preprint arXiv:2006.12672},
-  year={2020}
+  journal={Data Mining and Knowledge Discovery},
+  pages={1--29},
+  year={2021},
+  publisher={Springer},
+  doi={https://doi.org/10.1007/s10618-021-00745-9}
 }
 ```
 

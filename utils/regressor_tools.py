@@ -70,7 +70,7 @@ def create_regressor(regressor_name, input_shape, output_directory, verbose=1, i
 
     if regressor_name == "rocket":
         from models import rocket
-        return rocket.RocketRegressor(output_directory, verbose)
+        return rocket.RocketRegressor(output_directory)
 
     # classical ML models
     if regressor_name == "xgboost":

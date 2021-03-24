@@ -15,16 +15,14 @@ from utils.tools import save_test_duration, save_train_duration
 name = "Rocket"
 
 
-@njit
+@njit(fastmath=True)
 def generate_kernels(input_length, num_kernels, num_channels=1):
     candidate_lengths = np.array((7, 9, 11), dtype=np.int32)
     candidate_lengths = candidate_lengths[candidate_lengths < input_length]
     lengths = np.random.choice(candidate_lengths, num_kernels)
 
-    num_channel_indices = (2 ** np.random.uniform(0, np.log2(num_channels + 1), num_kernels)).astype(
-        np.int32)  # exponential
-    # num_channel_indices = np.random.randint(1, num_channels + 1, num_kernels) # uniform
-    # num_channel_indices[num_channel_indices > 3] = 3 # limit
+    # exponential
+    num_channel_indices = (2 ** np.random.uniform(0, np.log2(num_channels + 1), num_kernels)).astype(np.int32)
     channel_indices = np.zeros(num_channel_indices.sum(), dtype=np.int32)
 
     weights = np.zeros((num_channels, lengths.sum()), dtype=np.float32)
@@ -122,16 +120,38 @@ class RocketRegressor(TimeSeriesRegressor):
     The code is adapted by the authors from the original Rocket implementation at https://github.com/angus924/rocket
     """
 
-    def __init__(self, output_directory, verbose, n_kernels=10000):
+    def __init__(self,
+                 output_directory: str,
+                 n_kernels: int = 10000):
+        """
+        Initialise the Rocket model
+
+        Inputs:
+            output_directory: path to store results/models
+            n_kernels: number of random kernels
+        """
         super().__init__(output_directory)
         print('[{}] Creating Regressor'.format(self.name))
         self.name = name
-        self.verbose = verbose
         self.n_kernels = n_kernels
         self.kernels = None
-        self.regressor = RidgeCV(alphas=np.logspace(-3, 3, 10), normalize=True)
+        self.regressor = RidgeCV(alphas=np.logspace(-3, 3, 10),
+                                 normalize=True)
 
-    def fit(self, x_train, y_train, x_val=None, y_val=None):
+    def fit(self,
+            x_train: np.array,
+            y_train: np.array,
+            x_val: np.array = None,
+            y_val: np.array = None):
+        """
+        Fit Rocket
+
+        Inputs:
+            x_train: training data (num_examples, num_timestep, num_channels)
+            y_train: training target
+            x_val: validation data (num_examples, num_timestep, num_channels)
+            y_val: validation target
+        """
         start_time = time.perf_counter()
         print('[{}] Generating kernels'.format(self.name))
         self.kernels = generate_kernels(x_train.shape[1], self.n_kernels, x_train.shape[2])
@@ -146,7 +166,15 @@ class RocketRegressor(TimeSeriesRegressor):
 
         print('[{}] Training done!, took {}s'.format(self.name, self.train_duration))
 
-    def predict(self, x):
+    def predict(self, x: np.array):
+        """
+        Do prediction with Rocket
+
+        Inputs:
+            x: data for prediction (num_examples, num_timestep, num_channels)
+        Outputs:
+            y_pred: prediction
+        """
         print('[{}] Predicting'.format(self.name))
         start_time = time.perf_counter()
         print('[{}] Applying kernels'.format(self.name))

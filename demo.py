@@ -99,7 +99,7 @@ if __name__ == '__main__':
         min_len = min(min(all_len), min_len)
     print("[{}] Minimum length: {}".format(module, min_len))
 
-    # process the data into numpy array
+    # process the data into numpy array with (n_examples, n_timestep, n_dim)
     print("[{}] Reshaping data".format(module))
     x_train = process_data(X_train, normalise=norm, min_len=min_len)
     x_test = process_data(X_test, normalise=norm, min_len=min_len)
