@@ -5,6 +5,6 @@ pandas== 1.0.5
 scikit_fda== 0.3
 scikit_learn== 0.23.1
 scipy== 1.5.2
-tensorflow== 2.4.0
+tensorflow== 2.5.0
 tqdm== 4.48.2
 xgboost== 0.90
