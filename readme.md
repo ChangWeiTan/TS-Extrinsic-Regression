@@ -5,7 +5,7 @@ We note the similarity with a parallel field in the Statistics community known a
 ``Scalar-on-Function-Regression (SoFR)`` and is working on implementing those methods.  
 
 ## Data
-The archive containing 19 time series regression datasets can be found at [Monash UEA UCR Time Series Extrinsic Regression Archive](http://timeseriesregression.org/).
+The archive containing 19 time series regression datasets can be found at [Monash UEA UCR Time Series Extrinsic Regression Archive](http://tseregression.org/).
 We recommend you to read the [paper](https://arxiv.org/abs/2006.10996) for a detailed discussion of the datasets and their sources.
 For demo, please use the data in the data folder provided in this repository
 
@@ -66,12 +66,12 @@ Some of the main packages are:
 * [xgboost](https://xgboost.readthedocs.io/en/latest/)
 
 ## Results
-These are the results on the 19 Time series regression datasets from [Monash UEA UCR Time Series Regression Archive](http://timeseriesregression.org/).
+These are the results on the 19 Time series regression datasets from [Monash UEA UCR Time Series Regression Archive](http://tseregression.org/).
 The initial benchmark results in the [paper](https://arxiv.org/abs/2006.10996) showed that a simple linear model such as Rocket
 performs best for the time series regression task. 
-The full results can be obtained [here](http://timeseriesregression.org/data/ts_regression.xlsx).
+The full results can be obtained [here](http://tseregression.org/data/ts_regression.xlsx).
 
-![image](http://timeseriesregression.org/figures/ts_regression_cd.png)
+![image](http://tseregression.org/figures/ts_regression_cd.png)
 
 ## Reference
 If you use any part of this work, please cite:
