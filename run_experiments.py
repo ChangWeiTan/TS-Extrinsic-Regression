@@ -1,10 +1,14 @@
 # Chang Wei Tan, Christoph Bergmeir, Francois Petitjean, Geoff Webb
 #
-# @article{Tan2020Time,
-#   title={Time Series Regression},
+# @article{
+#   Tan2020TSER,
+#   title={Time Series Extrinsic Regression},
 #   author={Tan, Chang Wei and Bergmeir, Christoph and Petitjean, Francois and Webb, Geoffrey I},
-#   journal={arXiv preprint arXiv:2006.12672},
-#   year={2020}
+#   journal={Data Mining and Knowledge Discovery},
+#   pages={1--29},
+#   year={2021},
+#   publisher={Springer},
+#   doi={https://doi.org/10.1007/s10618-021-00745-9}
 # }
 
 import numpy as np

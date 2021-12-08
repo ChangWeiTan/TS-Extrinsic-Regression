@@ -1,13 +1,16 @@
 # Chang Wei Tan, Christoph Bergmeir, Francois Petitjean, Geoff Webb
 #
-# @article{Tan2020Time,
-#   title={Time Series Regression},
+# @article{
+#   Tan2020TSER,
+#   title={Time Series Extrinsic Regression},
 #   author={Tan, Chang Wei and Bergmeir, Christoph and Petitjean, Francois and Webb, Geoffrey I},
-#   journal={arXiv preprint arXiv:2006.12672},
-#   year={2020}
+#   journal={Data Mining and Knowledge Discovery},
+#   pages={1--29},
+#   year={2021},
+#   publisher={Springer},
+#   doi={https://doi.org/10.1007/s10618-021-00745-9}
 # }
-import getopt
-import sys
+import argparse
 
 import numpy as np
 
@@ -17,43 +20,32 @@ from utils.tools import create_directory
 from utils.transformer_tools import fit_transformer
 
 module = "RegressionExperiment"
-data_path = "data/"
-problem = "Sample"  # see data_loader.regression_datasets
-regressor_name = "rocket"  # see regressor_tools.all_models
-transformer_name = "none"  # see transformer_tools.transformers
-itr = 1
-norm = "none"  # none, standard, minmax
 
 # transformer parameters
+transformer_name = "none"  # see transformer_tools.transformers
 flatten = False  # if flatten, do not transform per dimension
 n_components = 10  # number of principal components
 n_basis = 10  # number of basis functions
 bspline_order = 4  # bspline order
 
 # parse arguments
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "hd:p:r:i:n:m:",
-                               ["data_path=", "problem=", "regressor=", "iter=", "norm="])
-except getopt.GetoptError:
-    print("demo.py -d <data_path> -p <problem> -r <regressor> -i <iteration> -n <normalisation>")
-    sys.exit(2)
-for opt, arg in opts:
-    if opt == '-h':
-        print("demo.py -d <data_path> -p <problem> -s <regressor> -i <iteration> -n <normalisation>")
-        sys.exit()
-    elif opt in ("-d", "--data"):
-        data_path = arg
-    elif opt in ("-p", "--problem"):
-        problem = arg
-    elif opt in ("-r", "--regressor"):
-        regressor_name = arg
-    elif opt in ("-i", "--iter"):
-        itr = arg
-    elif opt in ("-n", "--norm"):
-        norm = arg
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--data", required=False, default="data/")
+parser.add_argument("-p", "--problem", required=False, default="Sample")  # see data_loader.regression_datasets
+parser.add_argument("-c", "--regressor", required=False, default="rocket")  # see regressor_tools.all_models
+parser.add_argument("-i", "--iter", required=False, default=1)
+parser.add_argument("-n", "--norm", required=False, default="none")  # none, standard, minmax
+
+arguments = parser.parse_args()
 
 # start the program
 if __name__ == '__main__':
+    data_path = arguments.data
+    problem = arguments.problem  # see data_loader.regression_datasets
+    regressor_name = arguments.regressor  # see regressor_tools.all_models
+    itr = arguments.iter
+    norm = arguments.norm  # none, standard, minmax
+
     # create output directory
     output_directory = "output/regression/"
     if norm != "none":
