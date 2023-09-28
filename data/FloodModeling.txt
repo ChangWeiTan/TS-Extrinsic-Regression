@@ -1,0 +1,5 @@
+Label: 
+Hmax: Maximum water depth of a Digital Elevation Model (DEM) calculated from Lisflood-FP solver
+
+Dimensions:
+0. Simulated rainfall for 266 hours

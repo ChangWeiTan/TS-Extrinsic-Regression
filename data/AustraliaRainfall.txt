@@ -1,0 +1,7 @@
+Label: 
+Rainfall: Total daily rainfall in mm
+
+Dimensions:
+0. Daily at one hour interval average air temperature
+1. Daily at one hour interval maximum air temperature
+2. Daily at one hour interval minimum air temperature

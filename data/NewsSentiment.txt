@@ -1,0 +1,8 @@
+Label: 
+SentimentTitle: News title sentiment
+SentimentHeadline: News headline sentiment
+
+Dimensions:
+0. Facebook: Popularity on Facebook for 2 days at 20 minutes interval
+1. Google+: Popularity on Google+ for 2 days at 20 minutes interval
+2. LinkedIn: Popularity on LinkedIn for 2 days at 20 minutes interval

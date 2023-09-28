@@ -1,0 +1,28 @@
+Label: 
+Appliances: Total energy use in kWh
+
+Dimensions:
+0. T1: Temperature in kitchen area, in Celsius (daily at 10 minutes interval)
+1. RH_1: Humidity in kitchen area, in % (daily at 10 minutes interval)
+2. T2: Temperature in living room area, in Celsius (daily at 10 minutes interval)
+3. RH_2: Humidity in living room area, in % (daily at 10 minutes interval)
+4. T3: Temperature in laundry room area (daily at 10 minutes interval)
+5. RH_3: Humidity in laundry room area, in % (daily at 10 minutes interval)
+6. T4: Temperature in office room, in Celsius (daily at 10 minutes interval)
+7. RH_4: Humidity in office room, in % (daily at 10 minutes interval)
+8. T5: Temperature in bathroom, in Celsius (daily at 10 minutes interval)
+9. RH_5: Humidity in bathroom, in % (daily at 10 minutes interval)
+10. T6: Temperature outside the building (north side), in Celsius (daily at 10 minutes interval)
+11. RH_6: Humidity outside the building (north side), in % (daily at 10 minutes interval)
+12. T7: Temperature in ironing room , in Celsius (daily at 10 minutes interval)
+13. RH_7: Humidity in ironing room, in % (daily at 10 minutes interval)
+14. T8: Temperature in teenager room 2, in Celsius (daily at 10 minutes interval)
+15. RH_8: Humidity in teenager room 2, in % (daily at 10 minutes interval)
+16. T9: Temperature in parents room, in Celsius (daily at 10 minutes interval)
+17. RH_9: Humidity in parents room, in % (daily at 10 minutes interval)
+18. T_out: Temperature outside (from Chievres weather station), in Celsius (daily at 10 minutes interval)
+19. Pressure (from Chievres weather station): in mm Hg (daily at 10 minutes interval)
+20. RH_out: Humidity outside (from Chievres weather station), in % (daily at 10 minutes interval)
+21. Wind speed (from Chievres weather station): in m/s (daily at 10 minutes interval)
+22. Visibility (from Chievres weather station): in km (daily at 10 minutes interval)
+23. T_dewpoint (from Chievres weather station): °C (daily at 10 minutes interval)

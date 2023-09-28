@@ -1,0 +1,8 @@
+Label: 
+HR: Heart rate sampled at 1 Hz.
+RR: Respiratory rate sampled at 1 Hz.
+SpO2: Blood oxygen saturation level sampled at 1 Hz.
+
+Dimensions:
+0. PPG: 32 seconds PPG sensor sampled at 125 Hz
+1. ECG: 32 seconds ECG sensor sampled at 125 Hz

@@ -1,0 +1,12 @@
+Label: 
+C6H6(GT): True hourly averaged Benzene concentration in microg/m^3 (reference analyzer)
+
+Dimensions:
+0. PT08.S1(CO): PT08.S1 (tin oxide) hourly averaged sensor response (nominally CO targeted), 10 days at one hour interval 
+1. PT08.S2(NMHC): PT08.S2 (titania) hourly averaged sensor response (nominally NMHC targeted), 10 days at one hour interval 
+2. PT08.S3(NOx): PT08.S3 (tungsten oxide) hourly averaged sensor response (nominally NOx targeted), 10 days at one hour interval 
+3. PT08.S4(NO2): PT08.S4 (tungsten oxide) hourly averaged sensor response (nominally NO2 targeted), 10 days at one hour interval 
+4. PT08.S5(O3): PT08.S5 (indium oxide) hourly averaged sensor response (nominally O3 targeted), 10 days at one hour interval 
+5. T: Temperature in °C, 10 days at one hour interval 
+6. RH: Relative Humidity (%), 10 days at one hour interval 
+7. AH: Absolute Humidity, 10 days at one hour interval 

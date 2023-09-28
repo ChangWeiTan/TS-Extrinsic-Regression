@@ -1,0 +1,5 @@
+Label: 
+Death Rate: Covid19 death rate (Deaths/Confirmed cases) on 2020-04-14
+
+Dimensions:
+0. Confirmed: 3 months Covid19 daily confirmed cases for each country

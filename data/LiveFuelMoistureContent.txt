@@ -1,0 +1,11 @@
+Label: 
+LFMCvalue: Live fuel moisture content value
+
+Dimensions:
+0. Band 1: MODIS satellite band 1, sampled daily for a year
+1. Band 2: MODIS satellite band 2, sampled daily for a year
+2. Band 3: MODIS satellite band 3, sampled daily for a year
+3. Band 4: MODIS satellite band 4, sampled daily for a year
+4. Band 5: MODIS satellite band 5, sampled daily for a year
+5. Band 6: MODIS satellite band 6, sampled daily for a year
+6. Band 7: MODIS satellite band 7, sampled daily for a year

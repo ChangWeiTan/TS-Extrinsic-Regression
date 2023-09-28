@@ -6,8 +6,9 @@ We note the similarity with a parallel field in the Statistics community known a
 
 ## Data
 The archive containing 19 time series regression datasets can be found at [Monash UEA UCR Time Series Extrinsic Regression Archive](http://tseregression.org/).
-We recommend you to read the [paper](https://arxiv.org/abs/2006.10996) for a detailed discussion of the datasets and their sources.
-For demo, please use the data in the data folder provided in this repository
+We recommend you to read the [paper](https://arxiv.org/abs/2006.10996) for an overview of the datasets and their sources.
+
+The `data` folder contains the actual feature definitions for each data set, as well as a sample data set that can be used for demo purposes.
 
 ## Models
 The following models are implemented in this repository:
