@@ -1,0 +1,8 @@
+Label: 
+Heart rate: Patient's heart rate
+
+Dimensions:
+0. BVP: 8 seconds Blood volume pulse (64 Hz) from PPG sensor of the Empatica E4 wrist-worn device
+1. Acc_X: 8 seconds Three-axis acceleration (32 Hz) from the Empatica E4 wrist-worn device in units of 1/64g
+2. Acc_Y: 8 seconds Three-axis acceleration (32 Hz) from the Empatica E4 wrist-worn device in units of 1/64g
+3. Acc_Z: 8 seconds Three-axis acceleration (32 Hz) from the Empatica E4 wrist-worn device in units of 1/64g

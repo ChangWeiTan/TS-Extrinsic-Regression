@@ -1,0 +1,13 @@
+Label: 
+PM2.5: Daily maximum PM2.5 concentration (ug/m^3)
+
+Dimensions:
+0. SO2: Daily at one hour interval SO2 concentration (ug/m^3)
+1. NO2: Daily at one hour interval NO2 concentration (ug/m^3)
+2. CO: Daily at one hour interval CO concentration (ug/m^3)
+3. O3: Daily at one hour interval O3 concentration (ug/m^3)
+4. TEMP: Daily at one hour interval temperature (degree Celsius)
+5. PRES: Daily at one hour interval pressure (hPa)
+6. DEWP: Daily at one hour interval dew point temperature (degree Celsius)
+7. RAIN: Daily at one hour interval precipitation (mm)
+8. WSPM: Daily at one hour interval wind speed (m/s)

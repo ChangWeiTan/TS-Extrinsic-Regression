@@ -1,0 +1,9 @@
+Label: 
+Heart rate: Patient's heart rate
+
+Dimensions:
+0. PPG_1: 8 seconds PPG sensor 1 from a wristband sampled at 125 Hz
+1. PPG_2: 8 seconds PPG sensor 2 from a wristband sampled at 125 Hz
+2. Acc_X: 8 seconds Three-axis acceleration from a wristband sampled at 125 Hz
+3. Acc_Y: 8 seconds Three-axis acceleration from a wristband sampled at 125 Hz
+4. Acc_Z: 8 seconds Three-axis acceleration from a wristband sampled at 125 Hz
