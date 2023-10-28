@@ -1,6 +1,6 @@
 matplotlib== 3.3.1
 numba== 0.50.1
-numpy== 1.19.2
+numpy== 1.22.0
 pandas== 1.0.5
 scikit_fda== 0.3
 scikit_learn== 0.23.1
